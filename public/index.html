@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#101529" />
+<title>NarrateAI — Turn any text into a voice worth listening to</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="page-shell">
+  <header class="topbar">
+    <a href="/" class="brand" aria-label="NarrateAI home"><span class="brand-mark">◖▥◗</span><span>Narrate<span class="brand-ai">AI</span></span></a>
+    <div class="top-actions"><span class="indicator" id="serverState"><span class="dot"></span>Checking server</span><a class="docs" target="_blank" rel="noopener" href="https://docs.sarvam.ai/api/getting-started/models/bulbul">Bulbul docs ↗</a></div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow"><span class="spark">✦</span> SARVAM AI · BULBUL TEXT TO SPEECH</div>
+    <h1>Give your words <em>a voice.</em></h1>
+    <p>Turn articles, scripts, and documents into studio-quality narration with expressive Indian-language voices.</p>
+    <div class="hero-chips"><span>◉ 11 languages</span><span>◉ Voice cloning</span><span>◉ Downloadable WAV</span></div>
+  </section>
+
+  <main class="workspace">
+    <section class="card editor-card">
+      <div class="card-head"><div><div class="section-kicker">01 / CONTENT</div><h2>What should we narrate?</h2></div><div class="wordcount" id="count">0 characters</div></div>
+      <div class="source-tabs" role="group" aria-label="Content source">
+        <button type="button" class="tab active" data-tab="paste">✎ &nbsp;Write or paste</button>
+        <button type="button" class="tab" data-tab="upload">▣ &nbsp;Upload file</button>
+        <button type="button" class="tab" data-tab="url">⌁ &nbsp;From a URL</button>
+      </div>
+      <div id="pastePane" class="pane"><label for="content" class="subtle-label">YOUR CONTENT</label>
+        <textarea id="content" placeholder="Paste an article, write a podcast script, or drop in your next story...\n\nSeparate paragraphs for natural pauses. Use [pause=1] to insert a one-second pause, or [em]important[/em] for a punctuation-based emphasis cue." spellcheck="true"></textarea>
+      </div>
+      <div id="uploadPane" class="pane hidden">
+        <label for="file" class="dropzone"><span class="drop-icon">↥</span><strong>Choose a document</strong><small>PDF · DOCX · TXT · Markdown · HTML (up to 4 MB on Vercel)</small></label>
+        <input type="file" id="file" accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm" class="sr-only" />
+        <button id="extractFile" type="button" class="secondary tiny">Extract text from file</button>
+        <p class="hint">After extraction, edit the text in the Write or paste tab. Scanned PDFs without selectable text need OCR.</p>
+      </div>
+      <div id="urlPane" class="pane hidden"><label for="articleUrl" class="subtle-label">PUBLIC ARTICLE URL</label><div class="inline-field"><input type="url" id="articleUrl" placeholder="https://example.com/articles/..." /><button id="loadArticle" type="button" class="secondary">Import article</button></div><p class="hint">Public HTML articles only. Some sites block automated extraction.</p></div>
+      <div class="editor-foot"><span>TEXT TO VOICE <span class="light">/</span> NO UPLOAD STORAGE</span><button id="fillSample" type="button" class="text-button">Try sample text ↗</button></div>
+    </section>
+
+    <section class="card settings-card">
+      <div class="card-head"><div><div class="section-kicker">02 / STUDIO</div><h2>Shape the sound</h2></div><div class="accent-symbol">✦</div></div>
+      <div class="form-grid">
+        <label>Language<select id="language">
+          <option value="en-IN">English (India)</option><option value="hi-IN">Hindi — हिंदी</option><option value="ta-IN">Tamil — தமிழ்</option><option value="te-IN">Telugu — తెలుగు</option><option value="bn-IN">Bengali — বাংলা</option><option value="mr-IN">Marathi — मराठी</option><option value="kn-IN">Kannada — ಕನ್ನಡ</option><option value="gu-IN">Gujarati — ગુજરાતી</option><option value="pa-IN">Punjabi — ਪੰਜਾਬੀ</option><option value="ml-IN">Malayalam — മലയാളം</option><option value="od-IN">Odia — ଓଡ଼ିଆ</option>
+        </select></label>
+        <label>Bulbul model<select id="model"><option value="bulbul:v4-flash">Bulbul v4 Flash</option><option value="bulbul:v3">Bulbul v3</option></select></label>
+      </div>
+      <label class="full">Narration style<select id="preset"><option value="neutral">Natural & conversational</option><option value="news">Newsreader · crisp</option><option value="fiction">Storyteller · expressive</option><option value="education">Educator · clear</option></select></label>
+      <label class="full">Voice<select id="speaker"></select></label>
+      <div class="range-heading"><label for="pace">Speaking pace</label><span id="paceValue">1.00×</span></div><input type="range" id="pace" min="0.5" max="2" step="0.05" value="1"/><div class="range-labels"><small>Slow</small><small>Fast</small></div>
+      <div class="range-heading"><label for="temperature">Expressiveness (v3)</label><span id="tempValue">0.60</span></div><input type="range" id="temperature" min="0.01" max="1" step="0.01" value="0.6"/><div class="range-labels"><small>Steady</small><small>Expressive</small></div>
+      <div class="range-heading"><label for="paragraphPause">Paragraph pause</label><span id="pauseValue">0.4s</span></div><input type="range" id="paragraphPause" min="0" max="2" step="0.1" value="0.4"/><div class="range-labels"><small>No pause</small><small>Long pause</small></div>
+      <details class="details-box"><summary>✦ Use a cloned voice</summary><div class="details-inside">
+        <label for="voiceId">Saved Sarvam voice ID</label><input type="text" id="voiceId" placeholder="svc-... (optional)"/><p class="hint">When supplied, the saved voice overrides Bulbul model and speaker.</p>
+        <details><summary>Create a cloned voice from a reference clip</summary>
+          <div class="cloning-fields"><label>Voice name<input id="cloneName" type="text" maxlength="100" placeholder="My narrator" /></label>
+          <label>Reference audio (max 4 MB)<input id="cloneFile" type="file" accept=".wav,.mp3,.flac,.opus,.aac,audio/*" /></label>
+          <label>Speaking style<select id="cloneStyle"><option value="conversational">Conversational</option><option value="audiobooks">Audiobooks</option><option value="entertainment">Entertainment</option><option value="sales">Sales</option></select></label>
+          <label class="checkbox-line"><input id="cloneConsent" type="checkbox"/> I have permission from the speaker to clone and use this voice.</label>
+          <button id="cloneButton" type="button" class="secondary tiny">Create saved voice</button></div>
+        </details>
+      </div></details>
+      <div class="password"><label for="accessPassword">Private app access password</label><input id="accessPassword" type="password" autocomplete="off" placeholder="Set APP_ACCESS_PASSWORD on Vercel"/><p class="hint">The Sarvam API key stays on the server. This password protects your credits.</p></div>
+    </section>
+
+    <section class="card workflow-card">
+      <div class="card-head"><div><div class="section-kicker">03 / OPTIONAL</div><h2>Translate first</h2></div><span class="mini-tag">SARVAM TRANSLATE</span></div>
+      <p class="fine">Turn an English article into Hindi narration, or translate between supported languages before generating speech.</p>
+      <div class="form-grid"><label>From<select id="sourceLanguage"><option value="en-IN">English</option><option value="hi-IN">Hindi</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="bn-IN">Bengali</option><option value="mr-IN">Marathi</option><option value="kn-IN">Kannada</option><option value="gu-IN">Gujarati</option><option value="pa-IN">Punjabi</option><option value="ml-IN">Malayalam</option><option value="od-IN">Odia</option></select></label><label>To<select id="targetLanguage"><option value="hi-IN">Hindi</option><option value="en-IN">English</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="bn-IN">Bengali</option><option value="mr-IN">Marathi</option><option value="kn-IN">Kannada</option><option value="gu-IN">Gujarati</option><option value="pa-IN">Punjabi</option><option value="ml-IN">Malayalam</option><option value="od-IN">Odia</option></select></label></div>
+      <button type="button" id="translate" class="secondary full-btn">⇆ &nbsp;Translate content</button>
+    </section>
+
+    <section class="card output-card">
+      <div class="card-head"><div><div class="section-kicker">04 / OUTPUT</div><h2>Ready for the airwaves?</h2></div><div class="wave-icon">▂▅▃▇▄▆▂</div></div>
+      <p class="fine">We generate short clips securely on the server, then combine them in your browser to avoid serverless download limits.</p>
+      <div class="actions"><button id="preview" class="secondary">▶ &nbsp;Quick preview</button><button id="generate" class="primary">✦ &nbsp;Generate narration</button></div>
+      <div id="progressContainer" class="hidden"><div class="progress-label"><span id="progressText">Processing…</span><button type="button" id="cancel" class="text-button">Cancel</button></div><div class="progress"><span id="progressBar"></span></div></div>
+      <div id="status" class="status" role="status" aria-live="polite">Your sound studio is ready.</div>
+      <div id="result" class="result hidden"><div class="result-head"><span>◉ &nbsp;YOUR NARRATION</span><small id="duration">WAV audio</small></div><audio id="audio" controls preload="metadata"></audio><a id="download" class="download" download="narration.wav">↓ &nbsp;Download WAV</a></div>
+    </section>
+  </main>
+  <footer>Built with <a href="https://docs.sarvam.ai" target="_blank" rel="noopener">Sarvam AI</a> Bulbul &amp; FastAPI · Designed for Vercel · Only narrate content and voices you have rights to use.</footer>
+</div>
+<script src="/app.js" defer></script>
+</body>
+</html>
